@@ -10,7 +10,7 @@ import { AuthGuard } from './auth.guard';
 export class AuthController {
     constructor(private readonly authService: AuthService){}
     @Post('register')
-    async register(@Body() createUserDto: CreateUserDto):Promise<any> {
+    async register(@Body() createUserDto: CreateUserDto): Promise<any> {
         // Implement registration logic here
             console.log('email', createUserDto.email);
             console.log('password', createUserDto.password);
@@ -19,7 +19,7 @@ export class AuthController {
         return this.authService.register({ ...createUserDto, password: hashedPassword });
         // return { message: 'User registered successfully' };
     }
-    
+    @AuthGuard('Auth')
     @Post('login')
     async login(@Body() createUserDto: CreateUserDto): Promise<any>  {
         // Implement login logic here'
