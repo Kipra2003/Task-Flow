@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import {PG_CONNECTION} from '../contants';
 // import { ConfigService } from '@nestjs/config';
+import { DatabaseService } from './database.service';
 
 const dbProvider = {
   provide: PG_CONNECTION,
@@ -20,8 +21,8 @@ const dbProvider = {
 
 
 @Module({
-  providers: [dbProvider],
-  exports: [dbProvider],
+  providers: [dbProvider, DatabaseService],
+  exports: [dbProvider,DatabaseService],
 })
 export class DatabaseModule {
 }

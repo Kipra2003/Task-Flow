@@ -1,25 +1,29 @@
 import { Inject,Injectable } from '@nestjs/common';
-import {PG_CONNECTION} from '../contants';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { DatabaseService } from '../database/database.service';
 @Injectable()
 export class AuthService {
     constructor(
-        @Inject(PG_CONNECTION) private readonly pgConnection: any,
+        @Inject() private readonly databaseService: DatabaseService,
         private readonly jwtService: JwtService
     ) {}
 
-    async register({ email, password }: { email?: string; password?: string }): Promise<any> {
-        const res = await this.pgConnection.query(`SELECT * FROM Users WHERE email = $1`, [email]);
+    async register({ email, password }: { email: string; password: string }): Promise<any> {
+        const res = await this.databaseService.findUserByEmail(email);
         if(res.rows.length > 0) {
             return { message: 'User already exists' };
         }
-        await this.pgConnection.query(`INSERT INTO Users (email, password) VALUES ($1, $2)`, [email, password]);
-        return { message: 'User registered successfully' };
+        await this.databaseService.insertIntoUser(email,password);
+        // await this.pgConnection.query(`INSERT INTO Users (email, password) VALUES ($1, $2)`, [email, password]);
+        return { 
+            email,
+            message: 'User registered successfully' 
+        };
     }
-    async login({ email, password }: { email?: string; password?: string }): Promise<any> {
+    async login({ email, password }: { email: string; password: string }): Promise<any> {
 
-        const res = await this.pgConnection.query(`SELECT * FROM Users WHERE email = $1`, [email]);
+        const res = await this.databaseService.findUserByEmail(email);
         if(res.rows.length === 0) {
             return { message: 'Invalid email' };
         }
