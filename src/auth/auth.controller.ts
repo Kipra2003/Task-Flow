@@ -19,7 +19,7 @@ export class AuthController {
         return this.authService.register({ ...createUserDto, password: hashedPassword });
         // return { message: 'User registered successfully' };
     }
-    @AuthGuard('Auth')
+    
     @Post('login')
     async login(@Body() createUserDto: CreateUserDto): Promise<any>  {
         // Implement login logic here'
