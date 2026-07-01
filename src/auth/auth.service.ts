@@ -10,6 +10,7 @@ export class AuthService {
     ) {}
 
     async register({ email, password }: { email: string; password: string }): Promise<any> {
+        
         const res = await this.databaseService.findUserByEmail(email);
         if(res.rows.length > 0) {
             return { message: 'User already exists' };
@@ -38,6 +39,7 @@ export class AuthService {
             email: res.rows[0].email,
             password: res.rows[0].password,
         };
+
         const token = this.jwtService.sign(payload,{
             secret: process.env.JWT_SECRET,
         });

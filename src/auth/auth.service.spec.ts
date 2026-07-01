@@ -11,6 +11,9 @@ describe('AuthService', () => {
       findUserByEmail: jest.fn(),
       insertIntoUser: jest.fn()
   }
+  let mockJwtService = {
+    sign: jest.fn(),
+  }
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [AuthService
@@ -20,7 +23,10 @@ describe('AuthService', () => {
           useValue: mockDatabaseService
         }
         ,
-        JwtService
+        {
+          provide: JwtService,
+          useValue: mockJwtService
+        }
       ],
     }).compile();
 
@@ -68,8 +74,71 @@ describe('AuthService', () => {
   })
 
   describe('login',() => {
-    
+      it('should give invalid email as the user does not exist',async ()=>{
+          const dto = {
+            email:"prr@gmail.com",
+            password:"123456"
+          }
+          const result = {
+            message: "Invalid email"
+          }
+
+          mockDatabaseService.findUserByEmail.mockResolvedValue({
+            rows: []
+          })
+
+          const res = await service.login(dto);
+          expect(res).toEqual(result);
+      })
+
+      it('should give invalid password as the password is wrong',async ()=>{
+
+          const dto = {
+            email:"prr@gmail.com",
+            password:"12345"
+          }
+          const result = {
+            message: "Invalid password"
+          }
+
+          mockDatabaseService.findUserByEmail.mockResolvedValue({
+            rows: [{
+              email:"prr@gmail.com",
+              password: "$2b$10$wYF7ei0WT8CTa0Gsuaysb.ka9Y7iHr2HVNixKK5hxsCdMMJNtKrG."
+            }]
+          })
+          const res = await service.login(dto);
+          expect(res).toEqual(result);
+      })
+
+      it('should give the token as the user is valid', async ()=>{
+
+          const dto = {
+            email:"prr@gmail.com",
+            password:"123456",
+          }
+          const result = {
+            token: "sample-jwt-token"
+          }
+
+          mockDatabaseService.findUserByEmail.mockResolvedValue({
+            rows: [{
+              email:"prr@gmail.com",
+              password: "$2b$10$wYF7ei0WT8CTa0Gsuaysb.ka9Y7iHr2HVNixKK5hxsCdMMJNtKrG.",
+            }]
+          })
+          mockJwtService.sign.mockReturnValue("sample-jwt-token");
+          const res = await service.login(dto);
+          expect(res).toEqual(result);
+      })
   })
 
 
 });
+
+// {
+//   "email":"prr@gmail.com",
+//   "password":"123456"
+// }
+// $2b$10$wYF7ei0WT8CTa0Gsuaysb.ka9Y7iHr2HVNixKK5hxsCdMMJNtKrG.
+//

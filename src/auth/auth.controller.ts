@@ -9,13 +9,15 @@ import { AuthGuard } from './auth.guard';
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService){}
+
     @Post('register')
     async register(@Body() createUserDto: CreateUserDto): Promise<any> {
         // Implement registration logic here
-            console.log('email', createUserDto.email);
-            console.log('password', createUserDto.password);
+            // console.log('email', createUserDto.email);
+            // console.log('password', createUserDto.password);
             const pwd = (createUserDto.password) ? createUserDto.password : '';
             const hashedPassword = await bcrypt.hash(pwd, SALT_ROUNDS);
+            console.log('hashedPassword', hashedPassword);
         return this.authService.register({ ...createUserDto, password: hashedPassword });
         // return { message: 'User registered successfully' };
     }
